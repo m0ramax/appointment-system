@@ -1,15 +1,19 @@
 # Sistema de Citas (Appointment System)
 
-Sistema de gestión de citas con autenticación JWT y roles de usuario.
+Sistema de gestión de citas con autenticación JWT, roles de usuario y validación de disponibilidad.
 
 ## Características
 
-- Autenticación JWT
+- Autenticación JWT con manejo seguro de tokens
 - Roles de usuario (cliente y proveedor)
-- Base de datos PostgreSQL
-- Migraciones con Alembic
+- Base de datos PostgreSQL con relaciones y restricciones
+- Migraciones automáticas con Alembic
 - API RESTful con FastAPI
 - Documentación automática con Swagger UI
+- Validación de superposición de citas
+- Manejo de zonas horarias
+- Sistema de estados de citas (pending, confirmed, cancelled, completed)
+- Control de acceso basado en roles
 
 ## Requisitos
 
@@ -21,7 +25,7 @@ Sistema de gestión de citas con autenticación JWT y roles de usuario.
 
 1. Clonar el repositorio:
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/m0ramax/appointment-system.git
 cd appointment-system
 ```
 
@@ -67,7 +71,7 @@ uvicorn app.main:app --reload
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-## Endpoints principales
+## Endpoints
 
 ### Autenticación
 
@@ -76,7 +80,7 @@ uvicorn app.main:app --reload
   {
     "email": "usuario@ejemplo.com",
     "password": "contraseña123",
-    "role": "client"
+    "role": "client"  // "client" o "provider"
   }
   ```
 
@@ -89,19 +93,67 @@ uvicorn app.main:app --reload
   ```
 
 - `GET /api/v1/me`: Obtener perfil del usuario actual
-  ```bash
-  # Requiere header de autorización:
-  Authorization: Bearer <token>
+
+### Gestión de Citas
+
+- `POST /api/v1/appointments/`: Crear nueva cita
+  ```json
+  {
+    "title": "Consulta General",
+    "description": "Primera consulta",
+    "date_time": "2025-05-23T14:00:00Z",
+    "duration_minutes": 30,
+    "provider_id": 4
+  }
   ```
 
-## Desarrollo
+- `GET /api/v1/appointments/me`: Listar citas del usuario actual
 
-### Estructura del proyecto
+- `GET /api/v1/appointments/{appointment_id}`: Obtener detalles de una cita
+
+- `PUT /api/v1/appointments/{appointment_id}`: Actualizar cita
+  ```json
+  {
+    "status": "confirmed"  // Solo proveedores pueden confirmar
+  }
+  ```
+
+- `DELETE /api/v1/appointments/{appointment_id}`: Cancelar cita
+
+## Reglas de Negocio
+
+### Estados de Citas
+- **pending**: Estado inicial al crear una cita
+- **confirmed**: Cuando el proveedor acepta la cita
+- **cancelled**: Cuando se cancela la cita
+- **completed**: Cuando la cita ha finalizado
+
+### Permisos por Rol
+- **Clientes**:
+  - Pueden crear citas
+  - Pueden ver sus propias citas
+  - Pueden cancelar citas pendientes
+  - No pueden modificar citas confirmadas
+
+- **Proveedores**:
+  - Pueden ver todas sus citas asignadas
+  - Pueden confirmar/rechazar citas
+  - Pueden marcar citas como completadas
+  - Tienen acceso a su calendario de disponibilidad
+
+### Validaciones
+- No se permiten citas superpuestas para un mismo proveedor
+- Las citas deben programarse con anticipación
+- La duración mínima de una cita es de 30 minutos
+- Se valida la disponibilidad del proveedor antes de confirmar
+
+## Estructura del Proyecto
 ```
 app/
 ├── api/
 │   ├── v1/
 │   │   └── endpoints/
+│   │       ├── appointments.py
 │   │       └── auth.py
 │   └── deps.py
 ├── core/
@@ -110,8 +162,10 @@ app/
 ├── db/
 │   └── session.py
 ├── models/
+│   ├── appointment.py
 │   └── user.py
 ├── schemas/
+│   ├── appointment.py
 │   └── user.py
 └── main.py
 ```
@@ -127,6 +181,14 @@ Para aplicar migraciones:
 ```bash
 alembic upgrade head
 ```
+
+## Contribuir
+
+1. Fork el repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
 ## Licencia
 
