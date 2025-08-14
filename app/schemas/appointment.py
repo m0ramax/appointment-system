@@ -4,6 +4,12 @@ from typing import Optional
 from app.models.appointment import AppointmentStatus
 
 
+class TimeSlot(BaseModel):
+    start: str  # Format: "HH:MM"
+    end: str    # Format: "HH:MM"
+    available: bool
+
+
 class AppointmentBase(BaseModel):
     title: str = Field(..., min_length=3, max_length=100)
     description: Optional[str] = Field(None, max_length=500)

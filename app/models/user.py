@@ -32,6 +32,24 @@ class User(Base):
         back_populates="provider",
         cascade="all, delete-orphan",
     )
+    
+    # Relaciones con horarios de trabajo
+    work_schedules = relationship(
+        "WorkSchedule",
+        back_populates="provider",
+        cascade="all, delete-orphan",
+    )
+    schedule_exceptions = relationship(
+        "ScheduleException", 
+        back_populates="provider",
+        cascade="all, delete-orphan",
+    )
+    provider_settings = relationship(
+        "ProviderSettings",
+        back_populates="provider",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self):
         return f"<User {self.email}>"
