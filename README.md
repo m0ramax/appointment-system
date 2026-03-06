@@ -31,7 +31,7 @@ cd appointment-system
 
 2. Crear un entorno virtual:
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 ```
 
@@ -57,7 +57,7 @@ psql postgres -c "CREATE DATABASE appointment_db OWNER \"user\";"
 psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE appointment_db TO \"user\";"
 
 # Ejecutar migraciones
-alembic upgrade head
+python3 -m alembic.config upgrade head
 ```
 
 ## Uso
@@ -174,12 +174,12 @@ app/
 
 Para crear una nueva migración:
 ```bash
-alembic revision --autogenerate -m "descripción del cambio"
+python3 -m alembic.config revision --autogenerate -m "descripción del cambio"
 ```
 
 Para aplicar migraciones:
 ```bash
-alembic upgrade head
+python3 -m alembic.config upgrade head
 ```
 
 ## Contribuir
