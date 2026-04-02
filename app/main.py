@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.v1.endpoints import auth, appointments, work_schedule
+from app.api.v1.endpoints import auth, appointments, work_schedule, webhook
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -30,3 +30,4 @@ app.include_router(
     prefix=f"{settings.API_V1_STR}/work-schedules",
     tags=["work-schedules"],
 )
+app.include_router(webhook.router, prefix=settings.API_V1_STR, tags=["webhook"])
